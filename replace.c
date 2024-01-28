@@ -1,5 +1,5 @@
 /*
-search content in a file with regex
+replace content in a file with regex
 created by clyde (Sun, 28 Jan 2024 10:40:37 CET)
 */
 
