@@ -1,13 +1,12 @@
 /*
 search content in a file with regex
-created by clyde (Sun, 28 Jan 2024 10:29:55 +0100)
+created by clyde (Sun, 28 Jan 2024 10:29:55 CET)
 */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <regex.h>
-#include <ctype.h>
 
 #define BUFFER_SIZE 1024
 
@@ -60,12 +59,16 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    int found_match = 0;
+
     while (fgets(buffer, BUFFER_SIZE, file) != NULL) {
         regmatch_t matches[1];
         if (regexec(&regex, buffer, 1, matches, 0) == 0) {
+            if (found_match) {
+                putchar('\n');
+            }
             print_highlighted(buffer, matches, 1);
-        } else {
-            printf("%s", buffer);
+            found_match = 1;
         }
     }
 
@@ -74,3 +77,4 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
+

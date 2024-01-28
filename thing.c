@@ -1,6 +1,6 @@
 /*
 create or modify the date of a 'thing', AKA file
-created by clyde (Sun, 28 Jan 2024 10:29:55 +0100)
+created by clyde (Sun, 28 Jan 2024 10:29:55 CET)
 */
 
 #include <stdio.h>
