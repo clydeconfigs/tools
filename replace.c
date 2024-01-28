@@ -43,7 +43,7 @@ void replace_regex(char *str, const char *regex_pattern, const char *replace) {
 }
 
 int main(int argc, char *argv[]) {
-    if (argc < 4 || argc > 5) {
+    if (argc < 3 || argc > 4) {
         printf("Usage: %s [-i] <find_string/regex_pattern> <replace_string> <file_path>\n", argv[0]);
         return 1;
     }
