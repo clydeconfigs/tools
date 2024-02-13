@@ -1,6 +1,7 @@
 /*
 replace content in a file with regex
 created by clyde (Sun, 28 Jan 2024 10:40:37 CET)
+edited by clyde (Tue, 13 Feb 2024 12:11:19 CET)
 */
 
 #include <stdio.h>
@@ -13,7 +14,6 @@ created by clyde (Sun, 28 Jan 2024 10:40:37 CET)
 void replace_substring(char *str, const char *find, const char *replace) {
     char *pos, *temp;
     int find_len = strlen(find);
-    int replace_len = strlen(replace);
 
     while ((pos = strstr(str, find)) != NULL) {
         temp = strdup(pos + find_len);
@@ -31,7 +31,6 @@ void replace_regex(char *str, const char *regex_pattern, const char *replace) {
     while (regexec(&regex, str, 1, matches, 0) == 0) {
         int start = matches[0].rm_so;
         int end = matches[0].rm_eo;
-        int match_len = end - start;
 
         char *temp = strdup(str + end);
         strncpy(str + start, replace, BUFFER_SIZE - start);
@@ -43,38 +42,46 @@ void replace_regex(char *str, const char *regex_pattern, const char *replace) {
 }
 
 int main(int argc, char *argv[]) {
-    if (argc < 4 || argc > 5) {
-        printf("Usage: %s [-i] <find_string/regex_pattern> <replace_string> <file_path>\n", argv[0]);
+    if (argc < 3 || argc > 4) {
+        printf("Usage: %s [-i] <find_string/regex_pattern> <replace_string> [file_path]\n", argv[0]);
         return 1;
     }
 
     int in_place = 0;
     int arg_offset = 1;
 
-    if (argc == 5 && strcmp(argv[1], "-i") == 0) {
+    if (argc == 4 && strcmp(argv[1], "-i") == 0) {
         in_place = 1;
         arg_offset = 2;
     }
 
     const char *find = argv[arg_offset];
     const char *replace = argv[arg_offset + 1];
-    const char *file_path = argv[arg_offset + 2];
 
-    FILE *file = fopen(file_path, "r");
-    if (file == NULL) {
-        perror("Error");
-        return 1;
-    }
-
+    FILE *file;
     char buffer[BUFFER_SIZE];
     char *file_content = malloc(BUFFER_SIZE * sizeof(char));
     file_content[0] = '\0';
 
-    while (fgets(buffer, BUFFER_SIZE, file) != NULL) {
-        strcat(file_content, buffer);
-    }
+    if (arg_offset + 2 < argc) {
+        const char *file_path = argv[arg_offset + 2];
+        file = fopen(file_path, "r");
+        if (file == NULL) {
+            perror("Error");
+            free(file_content);
+            return 1;
+        }
 
-    fclose(file);
+        while (fgets(buffer, BUFFER_SIZE, file) != NULL) {
+            strcat(file_content, buffer);
+        }
+
+        fclose(file);
+    } else {
+        while (fgets(buffer, BUFFER_SIZE, stdin) != NULL) {
+            strcat(file_content, buffer);
+        }
+    }
 
     if (strstr(find, "\\") != NULL) {
         replace_regex(file_content, find, replace);
@@ -83,7 +90,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (in_place) {
-        file = fopen(file_path, "w");
+        file = fopen(argv[arg_offset + 2], "w");
         if (file == NULL) {
             perror("Error");
             free(file_content);
@@ -100,4 +107,3 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
-

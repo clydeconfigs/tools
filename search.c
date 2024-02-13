@@ -1,6 +1,7 @@
 /*
 search content in a file with regex
 created by clyde (Sun, 28 Jan 2024 10:29:55 CET)
+edited by clyde (Tue, 13 Feb 2024 12:11:19 CET)
 */
 
 #include <stdio.h>
@@ -36,17 +37,24 @@ void print_highlighted(const char *line, regmatch_t *matches, size_t num_matches
 }
 
 int main(int argc, char *argv[]) {
-    if (argc != 3) {
-        printf("Usage: %s <regex_pattern> <file_path>\n", argv[0]);
-        return 1;
-    }
+    const char *regex_pattern;
+    FILE *file;
 
-    const char *regex_pattern = argv[1];
-    const char *file_path = argv[2];
-
-    FILE *file = fopen(file_path, "r");
-    if (file == NULL) {
-        perror("Error");
+    if (argc == 2) {
+        // If only one argument is provided, assume it's the regex pattern
+        regex_pattern = argv[1];
+        file = stdin;
+    } else if (argc == 3) {
+        // If two arguments are provided, assume the first is the regex pattern and the second is the file path
+        regex_pattern = argv[1];
+        const char *file_path = argv[2];
+        file = fopen(file_path, "r");
+        if (file == NULL) {
+            perror("Error");
+            return 1;
+        }
+    } else {
+        printf("Usage: %s <regex_pattern> [file_path]\n", argv[0]);
         return 1;
     }
 
@@ -55,7 +63,9 @@ int main(int argc, char *argv[]) {
 
     if (regcomp(&regex, regex_pattern, REG_EXTENDED) != 0) {
         printf("Failed to compile regular expression.\n");
-        fclose(file);
+        if (file != stdin) {
+            fclose(file);
+        }
         return 1;
     }
 
@@ -73,8 +83,9 @@ int main(int argc, char *argv[]) {
     }
 
     regfree(&regex);
-    fclose(file);
+    if (file != stdin) {
+        fclose(file);
+    }
 
     return 0;
 }
-
